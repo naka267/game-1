@@ -1,1 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .flex{
+               display: flex;            
+    flex-direction:row;    
+         }
+         
+        #game {
+            position: relative;
+            height: 750px;
+            width: 1200px;
+            border: 2px solid black;
+            back-ground: gray;
+        }
+        .bar, .trap, .star, .heart, .black {
+            position: absolute;
+            height: 30px;
+            width: 30px;
+        }
+        .bar {
+            background-color: red;
+        }
+        .trap {
+            background-color: yellow;
+        }
+        .star {
+            background-color: green;
+        }
+        .heart {
+            background-color: pink;
+        }
+        .black {
+            background-color: black;
+        }
+        .ball {
+            position: absolute;
+            top: 710px;
+            height: 40px;
+            width: 40px;
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+     <div class="flex">
+    赤...ゲームオーバー
+<br>緑...100pt  
+<br>ピンク...200pt  
+<br>黄...-300pt  
+<br>黒...正負入れ替え or<br>   4倍 or ×0
+<br><br>壁にあたったら終了
+     <div id="game">
+        <div id="ball" class="ball"></div>
+            <div id="score"> Score: 0pt</div>
+    </div>
+    </div>
+    <script>
+        var game = document.getElementById('game');
+        var ball = document.getElementById('ball');
+        var scoreElement = document.getElementById('score');
 
+        var gameWidth = parseInt(window.getComputedStyle(game).width);
+        var ballWidth = parseInt(window.getComputedStyle(ball).width);
+        var ballLeft = gameWidth / 2 - ballWidth / 2;
+        var score = 0;
+
+        ball.style.left = ballLeft + 'px';
+
+ 
+document.onkeydown = function(e) {
+    var speed = 120000000;
+    if (e.keyCode == 37) {
+        ballLeft -= 17.5; // 左方向への速度を上げる
+    } else if (e.keyCode == 39) {
+        ballLeft += 17.5; // 右方向への速度を上げる
+    }
+   
+    if (ballLeft < 0 || ballLeft > gameWidth - ballWidth) {
+        alert('GAME OVER \\nYour score was ' + score + 'pt.');
+        location.reload();
+    }
+
+    ball.style.left = ballLeft + 'px';
+};
+
+
+
+        setInterval(function() {
+            var item = document.createElement('div');
+            var itemType = Math.random();
+            if (itemType < 0.2) {
+                item.classList.add('bar');
+            } else if (itemType < 0.4) {
+                item.classList.add('trap');
+            } else if (itemType < 0.6) {
+                item.classList.add('star');
+            } else if (itemType < 0.8) {
+                item.classList.add('heart');
+            } else {
+                item.classList.add('black');
+            }
+            item.style.left = Math.random() * (gameWidth - 20) + 'px';
+            game.appendChild(item);
+
+            var itemFall = setInterval(function() {
+                item.style.top = (parseInt(item.style.top) || 0) + 2.5 + 'px';
+
+                var ballTop = parseInt(window.getComputedStyle(ball).top);
+                var ballLeft = parseInt(window.getComputedStyle(ball).left);
+
+                var itemTop = parseInt(item.style.top);
+                var itemLeft = parseInt(item.style.left);
+
+                if (itemTop > ballTop && itemTop < ballTop + 40 && itemLeft < ballLeft + 40 && itemLeft + 20 > ballLeft) {
+                    if (item.classList.contains('bar')) {
+                  alert('GAME OVER \\nYour score was ' + score + 'pt.');
+                        location.reload();
+                    } else if (item.classList.contains('trap')) {
+                        score -= 300;
+                    } else if (item.classList.contains('star')) {
+                        score += 100;
+                    } else if (item.classList.contains('heart')) {
+                        score += 200;
+                    } else if (item.classList.contains('black')) {
+                        var random = Math.random();
+                        if (random < 0.33) {
+                            score *= 4;
+                        } else if (random < 0.66) {
+                            score = 0;
+                        } else {
+                            score *= -1;
+                        }
+                    }
+                    scoreElement.textContent = 'Score: ' + score + 'pt';
+                    game.removeChild(item);
+                    clearInterval(itemFall);
+                }
+
+                if (itemTop > 715) {
+                    clearInterval(itemFall);
+                    game.removeChild(item);
+                }
+            }, 10);
+        }, 500);
+        var speed = 2;
+        var previousScore = 0;
+
+        setInterval(function() {
+         
+
+            var itemFall = setInterval(function() {
+                item.style.top = (parseInt(item.style.top) || 0) + 0 + 'px'; // 落下速度を更新
+
+               
+                if (Math.floor(score / 1000) > Math.floor(previousScore / 1000)) {
+                    speed += 1;
+                }
+                previousScore = score;
+            }, 10);
+        }, 1000);
+
+    </script>
+
+</body>
+</html>
